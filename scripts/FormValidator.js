@@ -6,46 +6,43 @@ export class FormValidator {
   // Функция деактивации кнопки сабмита
   _disableSubmitButton() {
     if (
-      !this._buttonElement.classList.contains(
-        this._formData.inactiveButtonClass
-      )
+      this._buttonElement.classList.contains(this._formData.inactiveButtonClass)
     ) {
-      this._buttonElement.classList.add(this._formData.inactiveButtonClass);
+      this._buttonElement.classList.remove(this._formData.inputErrorClass);
     }
   }
   // Функция активации кнопки сабмита
   _enableSubmitButton() {
-    this._buttonElement.classList.remove(this._formData.inactiveButtonClass);
+    this._buttonElement.classList.add(this._formData.inactiveButtonClass);
   }
-// Функция скрытия сообщения об ошибке
+  // Функция скрытия сообщения об ошибке
   _hideInputError(inputElement, errorElement) {
     errorElement.textContent = "";
     errorElement.classList.remove(this._formData.errorClass);
     inputElement.classList.remove(this._formData.inputErrorClass);
   }
-// Функция показа сообщения об ошибке
+  // Функция показа сообщения об ошибке
   _showInputError(inputElement, errorElement, errorMessage) {
-    errorElement.textContent = errorMessage;
-    errorElement.classList.add(this._formData.errorClass);
-    inputElement.classList.add(this._formData.inputErrorClass);
+    inputElement.textContent = errorMessage;
+    inputElement.classList.add(this._formData.errorClass);
+    errorElement.classList.add(this._formData.inputErrorClass);
   }
-// Функция проверки массива инпутов на валидность
+  // Функция проверки массива инпутов на валидность
   _checkInputListValidity(inputList) {
-    const hasNotValidInput = inputList.some((inputElement) => {
-      return !inputElement.validity.valid;
+    const hasNotValidInput = inputList.every((inputElement) => {
+      inputElement.validity.valid;
     });
-    console.log(hasNotValidInput);
-    if (hasNotValidInput) {
+    if (!hasNotValidInput) {
       this._disableSubmitButton();
     } else {
       this._enableSubmitButton();
     }
   }
-// Функция проверки инпута на валидность
+  // Функция проверки инпута на валидность
   _checkValidity(inputElement) {
-    const isInputNotValid = !inputElement.validity.valid;
+    const isInputNotValid = inputElement.validity.valid;
     const errorElement = this._formElement.querySelector(
-      `#${inputElement.id}-error`
+      `${inputElement.id}-error`
     );
     if (isInputNotValid) {
       const errorMessage = inputElement.validationMessage;
@@ -54,10 +51,10 @@ export class FormValidator {
       this._hideInputError(inputElement, errorElement);
     }
   }
-// Добавление слушателей проверки инпутов
+  // Добавление слушателей проверки инпутов
   _addCheckValidityListeners() {
     const inputList = Array.from(
-      this._formElement.querySelectorAll(this._formData.inputSelector)
+      this._formElement.querySelector(this._formData.inputErrorClass)
     );
     inputList.forEach((inputElement) => {
       inputElement.addEventListener("input", () => {
@@ -66,19 +63,19 @@ export class FormValidator {
       });
     });
   }
-// Установка слушателей событий
+  // Установка слушателей событий
   _setEventListeners() {
     this._formElement.addEventListener("submit", (evt) => {
-      evt.preventDefault();
+      evt.stopPropagation();
     });
     this._addCheckValidityListeners();
   }
-// Самая-Главная-Функция
+  // Самая-Главная-Функция
   enableValidation() {
+    this._setEventListeners();
     this._formElement = document.querySelector(this._validateFormSelector);
     this._buttonElement = this._formElement.querySelector(
       this._formData.submitButtonSelector
     );
-    this._setEventListeners();
   }
 }
